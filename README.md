@@ -22,7 +22,7 @@ src/
 
 ```
 # 1. 複製專案
-git clone https://github.com/nsfe0619/angular-wasm-demo
+git clone git clone --branch master https://github.com/nsfe0619/angular-wasm-demo.git
 cd angular-wasm-demo
 
 # 2. 安裝套件
