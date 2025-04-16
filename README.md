@@ -8,22 +8,21 @@
 
 ## 📁 專案結構
 
-'''
+```
 src/ 
   └── app/ 
     ├── app.component.ts/html/scss ← 主框架與頁面容器 
     ├── app-routing.module.ts ← 路由設定 
     └── components/ ← 所有畫面元件集中管理 
       ├── menu/ ← 側邊選單 
-      ├── lesson0/ ← Lesson 0：環境建置 
-      └── lesson1/ ← Lesson 1：基本加法 wasm/ 
-'''
+      └── lesson0/ ← Lesson 0：環境建置 
+```
 
 ## 🛠️ 安裝與執行
 
-```bash
+```
 # 1. 複製專案
-git clone https://github.com/YOUR_USERNAME/angular-wasm-demo.git
+git clone https://github.com/nsfe0619/angular-wasm-demo
 cd angular-wasm-demo
 
 # 2. 安裝套件
@@ -31,3 +30,4 @@ npm install
 
 # 3. 啟動 Angular 開發伺服器
 ng serve
+```
