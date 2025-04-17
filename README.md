@@ -198,3 +198,135 @@ src/
     this.result = this.wasm.add(this.a, this.b);
   }
 ```
+
+---
+## Lesson 2 - 資料型別與 JS/TS 互動原理
+
+### 🎯 課程目標
+
+- 瞭解 AssemblyScript 中 `string` 與 `usize` 的轉換邏輯
+- 學會從 Angular 將字串資料轉成 WebAssembly 可讀的記憶體格式
+- 熟悉 WebAssembly 記憶體模型與 `memory.buffer` 操作
+- ✅ 支援中文、英文與 emoji 字串處理
+
+---
+
+### 🧠 重點概念
+
+| 概念 | 說明 |
+|------|------|
+| `usize` | 表示 WebAssembly 記憶體中的一段資料位址 |
+| `String.charCodeAt()` | JS 中將字串轉為 UTF-16 編碼的整數 |
+| `__new()` | AssemblyScript 中的記憶體分配函數 |
+| `String.UTF16.decodeUnsafe()` | 將記憶體中內容解碼回字串（由 WASM 執行） |
+| `memory.buffer` | JS 存取 WebAssembly 記憶體的 ArrayBuffer |
+
+---
+
+### 🖼 功能畫面
+
+- 輸入任意字串（含中英文與 emoji）
+- 點擊按鈕取得對應的 `usize` 位址與長度
+- 點擊還原按鈕，將 `usize` + 長度轉回原始字串
+
+---
+
+### 🛠 實作細節
+
+### Angular (`lesson2.component.ts`)
+
+- 呼叫 `wasm.service.ts` 的 `stringToUsize()` 方法進行記憶體配置
+- 使用 `Uint16Array` 將字串寫入 `memory.buffer`
+- 儲存 `ptr` 與 `length`，可供反查
+
+```ts
+  getPointer() {
+    const { ptr, len } = this.wasm.stringToUsize(this.inputStr);
+    this.ptr = ptr;
+    this.len = len;
+  }
+
+  recoverString() {
+    this.recoveredStr = this.wasm.usizeToString(this.ptr, this.len);
+  }
+```
+
+### WebAssembly (`index.ts`)
+
+```ts
+export function alloc_utf16(byteLength: i32): usize {
+  return __new(byteLength, idof<ArrayBuffer>());
+}
+
+export function getStringFromPtr(ptr: usize, len: i32): string {
+  return String.UTF16.decodeUnsafe(ptr, len << 1);
+}
+```
+
+### Angular (wasm.service.ts)
+✅ stringToUsize(str: string): { ptr: number; len: number }
+
+這段程式碼將字串轉為 UTF-16 的 Uint16Array，寫入 WebAssembly 的記憶體中，並回傳該區塊的起始位置（ptr）與長度（len）。
+
+```ts
+  stringToUsize(str: string): { ptr: number; len: number } {
+    const len = str.length; // 傳入的字串str取得長度len
+    const buffer = new Uint16Array(len); // 將字串轉成對應長度陣列
+    for (let i = 0; i < len; i++) {
+      buffer[i] = str.charCodeAt(i); // 向 WASM 請求分配 len*2 bytes 空間
+    }
+
+    const alloc = this.wasmInstance.exports['alloc_utf16'] as (len: number) => number;
+    const ptr = alloc(len * 2);
+
+    const mem = new Uint16Array(this.memory.buffer, ptr, len);
+    mem.set(buffer);  // 寫入記憶體
+
+    return { ptr, len };
+  }
+```
+
+✅ usizeToString(ptr: number, len: number): string
+這段程式碼從記憶體的某個位址（ptr）與指定長度（len）讀取 UTF-16 字元，並轉為 JS 字串。
+
+```ts
+  usizeToString(ptr: number, len: number): string {
+    // 從memory取得ptr位置開始的後面len位長度數值
+    const mem = new Uint16Array(this.memory.buffer, ptr, len); 
+    return String.fromCharCode(...mem); //將每個 UTF-16 字元組合成原始字串
+  }
+```
+
+對應關係：charCodeAt() <--> fromCharCode()
+因為 fromCharCode() 的參數格式是：
+```
+String.fromCharCode(code1, code2, ..., codeN)
+```
+但我們的記憶體是一個 陣列（例如 Uint16Array），所以需要用 展開運算子 ... 把它轉成單個參數串：
+```
+const mem = new Uint16Array([21704, 21966]);
+String.fromCharCode(...mem); // 正確 ✅
+String.fromCharCode(mem);    // 錯誤 ❌
+```
+
+### lesson2做的其他調整
+
+將this.wasm.init();移動到app.component.ts的 ngOnInit下，就不用每頁載入，另外:
+```
+./package.json增加
+    "explicitStart": false,
+    "exportRuntime": true,
+    "noAssert": true,
+    "initialMemory": "1mb",
+    "maximumMemory": "10mb"
+```
+1.  "explicitStart": false
+WASM 模組在 匯入時就自動執行 start（例如做初始化），不需要手動呼叫 __start()。
+2. "exportRuntime": true (重要)
+    將 AssemblyScript 的 runtime 功能匯出，例如 __new()、__pin()、__collect() 等
+3. "noAssert": true (方便開發)
+    關閉 AssemblyScript 編譯出來的斷言（assertion），例如 array out of bounds、division by zero 等檢查
+4. "initialMemory": "1mb"
+    初始化給 WebAssembly 配置 1MB 記憶體（線性記憶體） 
+5. "maximumMemory": "10mb"
+    限制 WebAssembly 最多只能成長到 10MB 記憶體（預設是 2GB）

@@ -7,13 +7,15 @@ import { MenuComponent } from './components/menu/menu.component';
 import { Lesson0Component } from './components/lesson0/lesson0.component';
 import { Lesson1Component } from './components/lesson1/lesson1.component';
 import { FormsModule } from '@angular/forms';
+import { Lesson2Component } from './components/lesson2/lesson2.component';
 
 @NgModule({
   declarations: [
     AppComponent,
     MenuComponent,
     Lesson0Component,
-    Lesson1Component
+    Lesson1Component,
+    Lesson2Component
   ],
   imports: [
     BrowserModule,

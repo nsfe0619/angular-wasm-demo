@@ -14,7 +14,6 @@ export class Lesson1Component implements OnInit {
   constructor(private wasm: WasmService) {}
 
   async ngOnInit(): Promise<void> {
-    await this.wasm.init();
   }
 
   calculate(): void {

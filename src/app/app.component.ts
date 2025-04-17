@@ -1,4 +1,5 @@
 import { Component } from '@angular/core';
+import { WasmService } from './services/wasm.service';
 
 @Component({
   selector: 'app-root',
@@ -7,4 +8,9 @@ import { Component } from '@angular/core';
 })
 export class AppComponent {
   title = 'angular-wasm-demo';
+    constructor(private wasm: WasmService) {}
+  async ngOnInit(): Promise<void> {
+    await this.wasm.init();
+  }
+
 }

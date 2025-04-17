@@ -1,0 +1,13 @@
+<div class="lesson2-container">
+  <h2>Lesson 2 - 字串與記憶體指標</h2>
+
+  <label>輸入字串：</label>
+  <input [(ngModel)]="inputStr" placeholder="可輸入中英文或 emoji" />
+
+  <button (click)="getPointer()">取得記憶體位址 (usize)</button>
+  <button (click)="recoverString()">usize → 還原字串</button>
+
+  <p>📍 usize：{{ ptr }}</p>
+  <p>📏 長度：{{ len }}</p>
+  <p>🔁 還原字串：{{ recoveredStr }}</p>
+</div>

@@ -4,6 +4,10 @@
     "outFile": "../src/assets/wasm/add.wasm",
     "optimizeLevel": 3,
     "shrinkLevel": 1,
-    "noAssert": true
+    "explicitStart": false,
+    "exportRuntime": true,
+    "noAssert": true,
+    "initialMemory": "1mb",
+    "maximumMemory": "10mb"
   }
 }

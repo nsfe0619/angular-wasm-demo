@@ -2,7 +2,8 @@ import { Injectable } from '@angular/core';
 
 @Injectable({ providedIn: 'root' })
 export class WasmService {
-  private wasmInstance: WebAssembly.Instance | null = null;
+  private wasmInstance!: WebAssembly.Instance ;
+  private memory!: WebAssembly.Memory;
 
   async init(): Promise<void> {
     if (this.wasmInstance) return;
@@ -10,8 +11,15 @@ export class WasmService {
     const response = await fetch('assets/wasm/add.wasm');
     const buffer = await response.arrayBuffer();
 
-    const { instance } = await WebAssembly.instantiate(buffer, {});
+    const { instance } = await WebAssembly.instantiate(buffer, {
+      env: {
+        abort(_msg: number, _file: number, line: number, col: number) {
+          console.error(`abort: ${line}:${col}`);
+        },
+      },
+    });
     this.wasmInstance = instance;
+    this.memory = instance.exports['memory'] as WebAssembly.Memory;
   }
 
   add(a: number, b: number): number {
@@ -22,5 +30,27 @@ export class WasmService {
     // 透過 exports 呼叫 add 函式
     const addFn = this.wasmInstance.exports['add'] as (a: number, b: number) => number;
     return addFn(a, b);
+  }
+
+  stringToUsize(str: string): { ptr: number; len: number } {
+    const len = str.length;
+    const buffer = new Uint16Array(len);
+    for (let i = 0; i < len; i++) {
+      buffer[i] = str.charCodeAt(i);
+    }
+
+    const alloc = this.wasmInstance.exports['alloc_utf16'] as (len: number) => number;
+    const ptr = alloc(len * 2);
+
+    const mem = new Uint16Array(this.memory.buffer, ptr, len);
+    mem.set(buffer);
+
+    return { ptr, len };
+  }
+
+
+  usizeToString(ptr: number, len: number): string {
+    const mem = new Uint16Array(this.memory.buffer, ptr, len);
+    return String.fromCharCode(...mem);
   }
 }
