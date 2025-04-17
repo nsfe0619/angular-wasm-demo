@@ -52,11 +52,31 @@ npx asinit wasm
 ```
 這會產生以下目錄結構：
 ```
-wasm/
-├── assembly/
-│   └── index.ts            ← 撰寫 AssemblyScript 原始碼
-├── asconfig.json           ← 編譯設定檔（可保留預設）
+angular-wasm-demo/
+├── wasm/
+│   ├──assembly/               ← 放 AssemblyScript 原始碼
+│   │   └── index.ts
+│   └── package.json       
+├── src/                    ← Angular相關程式
+└── build/                  ← 編譯輸出目標
+    ├── debug.wasm
+    └── release.wasm
 ```
+ 需手動把build內的wasm移至src下
+ 
+ 預期調整
+ ```
+ angular-wasm-demo/
+├── wasm/
+│   ├── assembly/           ← 放 AssemblyScript 原始碼
+│   │   └── index.ts
+│   ├── package.json       ← 編譯設定
+│   └── asconfig.json       ← 編譯設定
+├── src/
+│   └── assets/
+│       ├── add.debug.wasm  ← 編譯輸出目標
+│       └── add.wasm        ← 編譯輸出目標
+ ```
 ### ✅ 步驟 3：調整編譯設定與指令
 📄 修改 wasm/asconfig.json
 ```
