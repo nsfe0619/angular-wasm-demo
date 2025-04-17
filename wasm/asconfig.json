@@ -1,0 +1,9 @@
+{
+  "entries": ["assembly/index.ts"],
+  "options": {
+    "outFile": "../src/assets/wasm/add.wasm",
+    "optimizeLevel": 3,
+    "shrinkLevel": 1,
+    "noAssert": true
+  }
+}

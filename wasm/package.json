@@ -1,0 +1,17 @@
+{
+  "type": "module",
+  "exports": {
+    ".": {
+      "import": "./build/release.js",
+      "types": "./build/release.d.ts"
+    }
+  },
+  "scripts": {
+    "asbuild": "asc assembly/index.ts --config asconfig.json",
+    "test": "node tests",
+    "start": "npx serve ."
+  },
+  "devDependencies": {
+    "assemblyscript": "^0.27.35"
+  }
+}
