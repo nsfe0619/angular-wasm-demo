@@ -311,7 +311,30 @@ String.fromCharCode(mem);    // 錯誤 ❌
 
 ### lesson2做的其他調整
 
-將this.wasm.init();移動到app.component.ts的 ngOnInit下，就不用每頁載入，另外:
+將this.wasm.init();移動到app.component.ts的 ngOnInit下，就不用每頁載入，另外
+wasm.service.ts裡面多增加了memory
+```ts
+  private wasmInstance!: WebAssembly.Instance ;
+  private memory!: WebAssembly.Memory; //增加memory
+
+  async init(): Promise<void> {
+    if (this.wasmInstance) return;
+
+    const response = await fetch('assets/wasm/add.wasm');
+    const buffer = await response.arrayBuffer();
+
+    const { instance } = await WebAssembly.instantiate(buffer, {
+      env: {
+        abort(_msg: number, _file: number, line: number, col: number) {
+          console.error(`abort: ${line}:${col}`);
+        },
+      },
+    });
+    this.wasmInstance = instance;
+    this.memory = instance.exports['memory'] as WebAssembly.Memory;  // 接到wasm的memory
+  }
+```
+另外:
 ```
 ./package.json增加
     "explicitStart": false,
