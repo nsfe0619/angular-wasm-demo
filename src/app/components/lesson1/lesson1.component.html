@@ -1,0 +1,19 @@
+<h2>Lesson 1：呼叫 WASM 加法函式</h2>
+
+<div>
+  <label>
+    A：
+    <input type="number" [(ngModel)]="a" />
+  </label>
+
+  <label>
+    B：
+    <input type="number" [(ngModel)]="b" />
+  </label>
+
+  <button (click)="calculate()">加總</button>
+</div>
+
+<div *ngIf="result !== null">
+  <p>結果：{{ a }} + {{ b }} = {{ result }}</p>
+</div>

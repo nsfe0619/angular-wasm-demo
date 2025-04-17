@@ -74,7 +74,6 @@ angular-wasm-demo/
 │   └── asconfig.json       ← 編譯設定
 ├── src/
 │   └── assets/
-│       ├── add.debug.wasm  ← 編譯輸出目標
 │       └── add.wasm        ← 編譯輸出目標
  ```
 ### ✅ 步驟 3：調整編譯設定與指令
@@ -118,3 +117,84 @@ npm run dev
 執行後會：
 產生 src/assets/wasm/add.wasm
 啟動 Angular 開發伺服器：http://localhost:4200/
+
+---
+## 📘 Lesson 1：在 Angular 中呼叫 WebAssembly 加法函式
+
+本章節將學習如何在 Angular 中載入 `.wasm` 檔案，並透過 TypeScript 呼叫 AssemblyScript 編譯出的 `add(a, b)` 函式。
+
+---
+
+### 🎯 目標
+
+- 載入 `src/assets/wasm/add.wasm`
+- 使用 `WebAssembly.instantiate` 初始化模組
+- 在畫面上輸入兩個數字並計算加總結果
+
+---
+
+### 📁 新增檔案結構
+```
+src/ 
+├── app/ 
+│  ├── services/ 
+│  │   └── wasm.service.ts ← 載入並呼叫 add 函式 
+│  └── components/ 
+│      └── lesson1/ 
+│         ├── lesson1.component.ts 
+│         ├── lesson1.component.html 
+│         └── lesson1.component.scss
+```
+
+---
+
+### ✅ 步驟 1：建立 WasmService
+
+📄 `/wasm.service.ts`
+
+讀取wasm檔案
+```ts
+  private wasmInstance: WebAssembly.Instance | null = null;
+
+  async init(): Promise<void> {
+    if (this.wasmInstance) return;
+
+    const response = await fetch('assets/wasm/add.wasm');
+    const buffer = await response.arrayBuffer();
+
+    const { instance } = await WebAssembly.instantiate(buffer, {});
+    this.wasmInstance = instance;
+  }
+```
+
+預設的加法邏輯
+```ts 
+  add(a: number, b: number): number {
+    if (!this.wasmInstance) {
+      throw new Error('WASM module not initialized.');
+    }
+
+    const addFn = this.wasmInstance.exports.add as (a: number, b: number) => number;
+    return addFn(a, b);
+  }
+}
+```
+
+### ✅ 步驟 2：建立 Lesson1 Component
+
+/lesson1.component.ts
+載入wasmService，並在初始化時初始化wasm
+```ts
+  constructor(private wasm: WasmService) {}
+
+  async ngOnInit(): Promise<void> {
+    await this.wasm.init();
+  }
+```
+
+按鈕時運用方法
+```ts
+  calculate(): void {
+    this.result = this.wasm.add(this.a, this.b);
+  }
+```
