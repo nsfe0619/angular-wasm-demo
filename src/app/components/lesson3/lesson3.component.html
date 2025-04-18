@@ -1,0 +1,81 @@
+<div class="lesson3-container">
+  <h2>Lesson 3 - 記憶體管理與 GC 控制</h2>
+
+  <label>輸入字串：</label>
+  <input [(ngModel)]="inputStr" placeholder="請輸入字串（可含中英文與 emoji）" />
+
+  <div class="buttons">
+    <button (click)="createNew()">__new</button>
+    <button (click)="createAndPin()">__new + __pin</button>
+    <button (click)="unpinAndGC()">__unpin + __collect</button>
+    <button (click)="manualAlloc()">手動配置記憶體</button>
+    <button (click)="checkMemoryTable()">檢查記憶體狀態</button>
+    <button (click)="clearLog()">清除紀錄</button>
+  </div>
+  <h3>🧠 記憶體追蹤表</h3>
+<table class="mem-table">
+  <thead>
+    <tr>
+      <th>Ptr</th>
+      <th>內容</th>
+      <th>大小</th>
+      <th>方式</th>
+      <th>操作</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr *ngFor="let item of memoryTable">
+      <td>{{ item.ptr }}</td>
+      <td>{{ item.value }}</td>
+      <td>{{ item.size }} bytes</td>
+      <td>{{ item.method }}</td>
+      <td>
+        <button (click)="restoreString(item.ptr, item.value.length)">還原</button>
+      </td>
+    </tr>
+  </tbody>
+</table>
+
+
+  <div class="log">
+    <h3>操作紀錄</h3>
+    <ul>
+      <li *ngFor="let entry of log">{{ entry }}</li>
+    </ul>
+  </div>
+
+  <hr />
+  <h3>功能比較摘要</h3>
+  <table>
+    <tr>
+      <th>方法</th>
+      <th>釋放控制</th>
+      <th>GC 後可還原？</th>
+      <th>記憶體會爆？</th>
+    </tr>
+    <tr>
+      <td>__new</td>
+      <td>❌ 無控制</td>
+      <td>❌ 不一定</td>
+      <td>✅ 會被 GC 回收</td>
+    </tr>
+    <tr>
+      <td>__new + __pin</td>
+      <td>✅ 需手動解除</td>
+      <td>✅ 可保留</td>
+      <td>⚠️ 未解除會持續佔用</td>
+    </tr>
+    <tr>
+      <td>__unpin + __collect</td>
+      <td>✅ 完整手動控制</td>
+      <td>❌ 若 GC 成功則資料釋放</td>
+      <td>✅ 可釋放</td>
+    </tr>
+    <tr>
+      <td>manualAllocate</td>
+      <td>❌ 完全不受控</td>
+      <td>✅ 永遠可讀（但無 GC）</td>
+      <td>❌ 持續成長直到爆掉</td>
+    </tr>
+  </table>
+</div>

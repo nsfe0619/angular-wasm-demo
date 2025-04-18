@@ -32,6 +32,7 @@ export class WasmService {
     return addFn(a, b);
   }
 
+  // lesson2
   stringToUsize(str: string): { ptr: number; len: number } {
     const len = str.length;
     const buffer = new Uint16Array(len);
@@ -53,4 +54,26 @@ export class WasmService {
     const mem = new Uint16Array(this.memory.buffer, ptr, len);
     return String.fromCharCode(...mem);
   }
+
+  // lesson3
+  createWithNew(str: string): number {
+    return (this.wasmInstance.exports['createWithNew'] as (s: string) => number)(str);
+  }
+
+  createWithPin(str: string): number {
+    return (this.wasmInstance.exports['createWithPin'] as (s: string) => number)(str);
+  }
+
+  manualAllocate(str: string): number {
+    return (this.wasmInstance.exports['manualAllocate'] as (s: string) => number)(str);
+  }
+
+  releaseWithUnpin(ptr: number): void {
+    (this.wasmInstance.exports['releaseWithUnpin'] as (ptr: number) => void)(ptr);
+  }
+
+  runGC(): void {
+    (this.wasmInstance.exports['runGC'] as () => void)();
+  }
+
 }

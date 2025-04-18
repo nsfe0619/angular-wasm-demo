@@ -8,6 +8,7 @@ import { Lesson0Component } from './components/lesson0/lesson0.component';
 import { Lesson1Component } from './components/lesson1/lesson1.component';
 import { FormsModule } from '@angular/forms';
 import { Lesson2Component } from './components/lesson2/lesson2.component';
+import { Lesson3Component } from './components/lesson3/lesson3.component';
 
 @NgModule({
   declarations: [
@@ -15,7 +16,8 @@ import { Lesson2Component } from './components/lesson2/lesson2.component';
     MenuComponent,
     Lesson0Component,
     Lesson1Component,
-    Lesson2Component
+    Lesson2Component,
+    Lesson3Component
   ],
   imports: [
     BrowserModule,
